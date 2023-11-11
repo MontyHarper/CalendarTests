@@ -15,7 +15,7 @@ struct xPositionKey: LayoutValueKey {
 }
 
 struct modeKey: LayoutValueKey {
-    static let defaultValue: Mode = .regular
+    static let defaultValue: EventViewModel.Mode = .regular
 }
 
 extension View {
@@ -23,7 +23,7 @@ extension View {
         layoutValue(key: xPositionKey.self, value: percent)
     }
     
-    func mode(_ mode: Mode) -> some View {
+    func mode(_ mode: EventViewModel.Mode) -> some View {
         layoutValue(key: modeKey.self, value: mode)
     }
 }

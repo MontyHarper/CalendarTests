@@ -13,7 +13,8 @@ import SwiftUI
 class TestData: ObservableObject {
     
     @Published var demoted: [Int] = []
-    var eventViews:[EventView] = []
+    private(set) var eventViewModels: [EventViewModel] = []
+    private(set) var demotedEventViewModels: [EventViewModel] = []
     var dateViews: [DateView] = []
     
     let labels = ["breakfast","lunch","dinner with family","dinner","exercise","doctor appointment"]
@@ -22,11 +23,10 @@ class TestData: ObservableObject {
     
     // Generates event views with random xPositions in Unit Space
     func makeEvents() {
-        for _ in 0...number {
-            let label = labels[Int.random(in: 0...labels.count - 1)]
-            let xPosition = Double.random(in: 0.0...1.0)
-            eventViews.append(EventView(label: label, xPosition: xPosition, mode: .regular))
+        eventViewModels = (0..<number).map { index in
+            .init(label: labels.randomElement()!, xPosition: Double.random(in: 0.0...1.0), mode: .regular)
         }
+        demotedEventViewModels = eventViewModels.map { .init(label: $0.label, xPosition: $0.xPosition, mode: .demoted)}
     }
     
     // Generates date views - not currently testing
