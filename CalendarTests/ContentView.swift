@@ -29,8 +29,8 @@ struct ContentView: View {
                 
                 // Josh's original solution works well for time labels, which are laid out at regular intervals.
                 ProportionalHorizontalLayout(minimumSpacing: 10) {
-                    ForEach(testData.eventViews) { item in
-                        item
+                    ForEach(testData.eventViewModels) { viewModel in
+                        EventView(viewModel: viewModel)
                     }
                 }
                 .frame(width:geo.size.width * viewWidth)
@@ -51,10 +51,8 @@ struct ContentView: View {
                         // This first layout displays event views with labels, placing views that don't fit off screen.
                         // These views show a yellow circle
                         NewHL2 {
-                            ForEach(testData.eventViews) { event in
-                                event
-                                    .xPosition(event.xPosition)
-                                    .mode(.regular)
+                            ForEach(testData.eventViewModels) { viewModel in
+                                EventView(viewModel: viewModel)
                             }
                         }
                         
@@ -68,10 +66,8 @@ struct ContentView: View {
                         
                                 
                         NewHL2 {
-                            ForEach(testData.eventViews.map({EventView(label: $0.label, xPosition: $0.xPosition, mode: .demoted)})) { event in
-                                event
-                                    .xPosition(event.xPosition)
-                                    .mode(.demoted)
+                            ForEach(testData.demotedEventViewModels) { viewModel in
+                                EventView(viewModel: viewModel)
                             }
                         }
                     }

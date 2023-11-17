@@ -8,53 +8,34 @@
 import Foundation
 import SwiftUI
 
-// An event view's mode determines whether it shows its label or not
-enum Mode {
-    case regular
-    case demoted
-}
-
-// This view represents an event on the timeline.
-struct EventView: View, Identifiable {
+struct EventViewModel: Identifiable, Hashable {
     var id = UUID()
     var label: String
     var xPosition: Double
     var mode: Mode
-    
-    var body: some View {
-        
-        switch mode {
-            
-            // In regular mode, show a text label
-        case .regular:
-            
-            VStack {
-                Text(label)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .allowsTightening(true)
-                Circle()
-                    .stroke(.yellow, lineWidth: 1.0)
-                    .frame(width:22, height:22, alignment: .center)
-                    .offset(y:-10.0)
-                    .foregroundColor(.blue)
-                
-                
-            }
-            
-            // In demoted mode, show no text label
-        case .demoted:
-            VStack {
-                Text(" ")
-                    .multilineTextAlignment(.center)
-                Circle()
-                    .stroke(.black, lineWidth: 1.0)
-                    .frame(width:22, height:22, alignment: .center)
-                    .offset(y:-10.0)
-                    .foregroundColor(.blue)
-                
-            }
+    enum Mode {
+        case regular
+        case demoted
+        var isRegular: Bool {
+            self == .regular
         }
+    }
+}
+
+// This view represents an event on the timeline.
+struct EventView: View {
+    var viewModel: EventViewModel
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(viewModel.mode.isRegular ? viewModel.label : " ")
+                .lineLimit(1)
+                .fontWidth(.condensed)
+            Circle()
+                .stroke(viewModel.mode.isRegular ? .yellow :  .black, lineWidth: 1.0)
+                .frame(width:22, height:22)
+        }
+        .xPosition(viewModel.xPosition)
+        .mode(viewModel.mode)
     }
 }
     

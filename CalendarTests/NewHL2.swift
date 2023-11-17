@@ -34,7 +34,7 @@ struct NewHL2: Layout {
         // This creates a frame for each subview based on its size and location.
         // Even when I request .infinity, I am getting widths that do not accomodate the text in each subview.
         let frames = subviews.enumerated().map { index, view in
-            let size = view.sizeThatFits(.infinity)
+            let size = view.sizeThatFits(.unspecified)
             let proportion = view[xPositionKey.self]
             print("this view proxy has xPosition value: \(view[xPositionKey.self])")
             return CGRect(origin:
@@ -48,45 +48,29 @@ struct NewHL2: Layout {
         }
         
 
-        // MARK: - Filter Subviews
-        // Tested this line; it properly sorts the subviews into order from left to right.
-        let sortedViews = zip(subviews, frames).sorted(by: {$0.0[xPositionKey.self] < $1.0[xPositionKey.self]})
-        
-        // BestFit will collect indexes of views that can display their labels.
-        var bestFit = [0]
-        var i = 0
-        let last = sortedViews.count - 1
-        
-        if last > 0 {
-            
-        // Nested loop determines which views can display labels. First view is always a yes. Then the next view to the right that doesn't overlap, then the next, etc.
-        outerLoop: while i < last {
-            
-        innerLoop: for j in i+1...last {
-            if sortedViews[i].1.maxX + minimumSpacing < sortedViews[j].1.minX {
-                print("right edge of \(i): \(sortedViews[i].1.maxX); left edge of \(j): \(sortedViews[j].1.minX)")
-                bestFit.append(j)
-                i = j
-                break innerLoop
-            }
-            if j == last {
-                break outerLoop
-            }
-        }
-        }
-        }
-        print("best fit indexes: \(bestFit)")
-        
-        // My first thought was here I could call a function that would demote the views that don't fit, but I am not allowed to change an observed object from inside a view/layout. I can only place the subviews, not change them.
+        let sortedIndices = subviews.indices.sorted { subviews[$0][xPositionKey.self] < subviews[$1][xPositionKey.self] }
 
-        
+        var right: Int?
+        let bestFit = Set(
+            sortedIndices.filter { index in
+                guard let rightIndex = right else {
+                    right = index
+                    return true
+                }
+                guard frames[rightIndex].maxX + minimumSpacing < frames[index].minX else { return false }
+                right = index
+                return true
+            }
+        )
+
         // MARK: - Place Subviews
 
 
         let nowhere = CGPoint(x: 1e12, y: 1e12)
 
-        for (index, view) in subviews.enumerated() {
-            let frame = sortedViews[index].1
+        for index in sortedIndices {
+            let frame = frames[index]
+            let view = subviews[index]
             view.place(
                 
                 // Each view is placed on screen if either its label fits (member of bestFit), or its mode is "demoted".
